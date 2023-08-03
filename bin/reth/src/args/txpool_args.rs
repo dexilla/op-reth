@@ -52,6 +52,15 @@ impl TxPoolArgs {
                 max_size: self.queued_max_size * 1024 * 1024,
             },
             max_account_slots: self.max_account_slots,
+            #[cfg(feature = "optimism")]
+            disable_gossip: false,
         }
+    }
+
+    #[cfg(feature = "optimism")]
+    pub fn op_pool_config(&self, disable_gossip: bool) -> PoolConfig {
+        let mut conf = self.pool_config();
+        conf.disable_gossip = disable_gossip;
+        conf
     }
 }

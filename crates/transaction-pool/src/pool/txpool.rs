@@ -88,6 +88,10 @@ pub struct TxPool<T: TransactionOrdering> {
     all_transactions: AllTransactions<T::Transaction>,
     /// Transaction pool metrics
     metrics: TxPoolMetrics,
+
+    #[cfg(features = "optimism")]
+    /// Whether to disable tx gossip
+    disable_gossip: bool,
 }
 
 // === impl TxPool ===

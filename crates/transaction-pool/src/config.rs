@@ -18,6 +18,9 @@ pub struct PoolConfig {
     pub queued_limit: SubPoolLimit,
     /// Max number of executable transaction slots guaranteed per account
     pub max_account_slots: usize,
+    #[cfg(feature = "optimism")]
+    /// Whether to disable tx gossip
+    pub disable_gossip: bool,
 }
 
 impl Default for PoolConfig {
@@ -27,6 +30,8 @@ impl Default for PoolConfig {
             basefee_limit: Default::default(),
             queued_limit: Default::default(),
             max_account_slots: TXPOOL_MAX_ACCOUNT_SLOTS_PER_SENDER,
+            #[cfg(feature = "optimism")]
+            disable_gossip: false,
         }
     }
 }

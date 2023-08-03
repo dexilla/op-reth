@@ -226,6 +226,11 @@ impl Command {
         let factory = ProviderFactory::new(Arc::clone(&db), Arc::clone(&self.chain));
         let blockchain_db = BlockchainProvider::new(factory, blockchain_tree.clone())?;
 
+        #[cfg(not(feature = "optimism"))]
+        let pool_config = self.txpool.pool_config();
+        #[cfg(feature = "optimism")]
+        let pool_config = self.txpool.op_pool_config(self.rollup.disable_txpool_gossip);
+
         let transaction_pool = reth_transaction_pool::Pool::eth_pool(
             EthTransactionValidator::with_additional_tasks(
                 blockchain_db.clone(),
@@ -233,7 +238,7 @@ impl Command {
                 ctx.task_executor.clone(),
                 1,
             ),
-            self.txpool.pool_config(),
+            pool_config,
         );
         info!(target: "reth::cli", "Transaction pool initialized");
 
