@@ -296,8 +296,8 @@ pub fn validate_header_regarding_parent(
                 // This BaseFeeMissing will not happen as previous blocks are checked to have them.
                 parent
                     .next_block_base_fee(
-                        chain_spec.base_fee_change_denominator(),
                         chain_spec.elasticity_multiplier(),
+                        chain_spec.base_fee_change_denominator(),
                     )
                     .ok_or(ConsensusError::BaseFeeMissing)?
             };
