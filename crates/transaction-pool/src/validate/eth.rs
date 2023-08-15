@@ -103,7 +103,7 @@ where
             return TransactionValidationOutcome::Invalid(
                 transaction,
                 InvalidTransactionError::PooledDepositTx.into(),
-            )
+            );
         }
 
         let hash = *transaction.hash();
@@ -122,7 +122,7 @@ where
                 return TransactionValidationOutcome::Error(
                     hash,
                     Box::new(TransactionValidatorError::ValidationServiceUnreachable),
-                )
+                );
             }
         }
 
@@ -345,7 +345,7 @@ where
             return TransactionValidationOutcome::Invalid(
                 transaction,
                 InvalidTransactionError::PooledDepositTx.into(),
-            )
+            );
         }
 
         // Checks for tx_type
@@ -359,7 +359,7 @@ where
                     return TransactionValidationOutcome::Invalid(
                         transaction,
                         InvalidTransactionError::Eip1559Disabled.into(),
-                    )
+                    );
                 }
             }
 
@@ -369,7 +369,7 @@ where
                     return TransactionValidationOutcome::Invalid(
                         transaction,
                         InvalidTransactionError::Eip1559Disabled.into(),
-                    )
+                    );
                 }
             }
 
@@ -387,13 +387,13 @@ where
             return TransactionValidationOutcome::Invalid(
                 transaction,
                 InvalidPoolTransactionError::OversizedData(size, TX_MAX_SIZE),
-            )
+            );
         }
 
         // Check whether the init code size has been exceeded.
         if self.shanghai {
             if let Err(err) = self.ensure_max_init_code_size(&transaction, MAX_INIT_CODE_SIZE) {
-                return TransactionValidationOutcome::Invalid(transaction, err)
+                return TransactionValidationOutcome::Invalid(transaction, err);
             }
         }
 
@@ -403,7 +403,7 @@ where
             return TransactionValidationOutcome::Invalid(
                 transaction,
                 InvalidPoolTransactionError::ExceedsGasLimit(gas_limit, self.block_gas_limit),
-            )
+            );
         }
 
         // Ensure max_priority_fee_per_gas (if EIP1559) is less than max_fee_per_gas if any.
@@ -411,19 +411,19 @@ where
             return TransactionValidationOutcome::Invalid(
                 transaction,
                 InvalidTransactionError::TipAboveFeeCap.into(),
-            )
+            );
         }
 
         // Drop non-local transactions with a fee lower than the configured fee for acceptance into
         // the pool.
-        if !origin.is_local() &&
-            transaction.is_eip1559() &&
-            transaction.max_priority_fee_per_gas() < self.minimum_priority_fee
+        if !origin.is_local()
+            && transaction.is_eip1559()
+            && transaction.max_priority_fee_per_gas() < self.minimum_priority_fee
         {
             return TransactionValidationOutcome::Invalid(
                 transaction,
                 InvalidPoolTransactionError::Underpriced,
-            )
+            );
         }
 
         // Checks for chainid
@@ -432,7 +432,7 @@ where
                 return TransactionValidationOutcome::Invalid(
                     transaction,
                     InvalidTransactionError::ChainIdMismatch.into(),
-                )
+                );
             }
         }
 
@@ -453,7 +453,7 @@ where
             return TransactionValidationOutcome::Invalid(
                 transaction,
                 InvalidTransactionError::SignerAccountHasBytecode.into(),
-            )
+            );
         }
 
         // Checks for nonce
@@ -461,7 +461,7 @@ where
             return TransactionValidationOutcome::Invalid(
                 transaction,
                 InvalidTransactionError::NonceNotConsistent.into(),
-            )
+            );
         }
 
         #[cfg(not(feature = "optimism"))]
@@ -470,7 +470,7 @@ where
         // TODO(refcell): should we stash l1 fee info in the `BlockInfo` object
         //                since we can just query the state provider here and
         //                transform the block into an `L1BlockInfo` object
-        //                containing the fee info?
+        //                containing the fee info.
         #[cfg(feature = "optimism")]
         let cost = {
             let block = match self.client.block_by_number_or_tag(BlockNumberOrTag::Latest) {
@@ -501,7 +501,7 @@ where
                     available_funds: account.balance,
                 }
                 .into(),
-            )
+            );
         }
 
         // Return the valid transaction
