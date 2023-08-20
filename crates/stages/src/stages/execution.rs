@@ -468,18 +468,28 @@ impl ExecutionStageThresholds {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_utils::TestTransaction;
     use assert_matches::assert_matches;
-    use reth_db::{models::AccountBeforeTx, test_utils::create_test_rw_db};
+    use reth_db::test_utils::create_test_rw_db;
     use reth_primitives::{
-        hex_literal::hex, keccak256, stage::StageUnitCheckpoint, Account, Bytecode,
-        ChainSpecBuilder, PruneModes, SealedBlock, StorageEntry, H160, H256, MAINNET, U256,
+        hex_literal::hex, stage::StageUnitCheckpoint, ChainSpecBuilder, SealedBlock, MAINNET,
     };
-    use reth_provider::{AccountReader, BlockWriter, ProviderFactory, ReceiptProvider};
+    use reth_provider::{BlockWriter, ProviderFactory};
     use reth_revm::Factory;
     use reth_rlp::Decodable;
     use std::sync::Arc;
 
+    #[cfg(not(feature = "optimism"))]
+    use crate::test_utils::TestTransaction;
+    #[cfg(not(feature = "optimism"))]
+    use reth_db::models::AccountBeforeTx;
+    #[cfg(not(feature = "optimism"))]
+    use reth_primitives::{
+        keccak256, Account, Bytecode, PruneModes, StorageEntry, H160, H256, U256,
+    };
+    #[cfg(not(feature = "optimism"))]
+    use reth_provider::{AccountReader, ReceiptProvider};
+
+    #[cfg(not(feature = "optimism"))]
     fn stage() -> ExecutionStage<Factory> {
         let factory =
             Factory::new(Arc::new(ChainSpecBuilder::mainnet().berlin_activated().build()));
@@ -616,6 +626,7 @@ mod tests {
         }) if total == block.gas_used);
     }
 
+    #[cfg(not(feature = "optimism"))]
     #[tokio::test]
     async fn sanity_execution_of_block() {
         // TODO cleanup the setup after https://github.com/paradigmxyz/reth/issues/332
@@ -725,6 +736,7 @@ mod tests {
         );
     }
 
+    #[cfg(not(feature = "optimism"))]
     #[tokio::test]
     async fn sanity_execute_unwind() {
         // TODO cleanup the setup after https://github.com/paradigmxyz/reth/issues/332
@@ -806,6 +818,7 @@ mod tests {
         assert_eq!(provider.receipt(0), Ok(None), "First receipt should be unwound");
     }
 
+    #[cfg(not(feature = "optimism"))]
     #[tokio::test]
     async fn test_selfdestruct() {
         let test_tx = TestTransaction::default();

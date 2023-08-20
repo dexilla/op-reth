@@ -74,6 +74,7 @@ serde_json.workspace = true
 
 [features]
 test-utils = ["reth-interfaces/test-utils"]
+optimism = ["reth-primitives/optimism", "reth-eth-wire/optimism", "reth-interfaces/optimism", "reth-revm/optimism"]
 
 [[bench]]
 name = "criterion"

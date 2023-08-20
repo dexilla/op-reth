@@ -116,7 +116,8 @@ optimism = [
   "reth-beacon-consensus/optimism",
   "reth-basic-payload-builder/optimism",
   "reth-network/optimism",
-  "reth-network-api/optimism"
+  "reth-network-api/optimism",
+  "reth-stages/optimism"
 ]
 ethereum = []
 

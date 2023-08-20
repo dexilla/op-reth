@@ -891,17 +891,22 @@ mod tests {
     use super::*;
     use crate::database::State;
     use once_cell::sync::Lazy;
-    use reth_consensus_common::calc;
     use reth_primitives::{
-        constants::ETH_TO_WEI, hex_literal::hex, keccak256, Account, Address, BlockNumber,
-        Bytecode, Bytes, ChainSpecBuilder, ForkCondition, StorageKey, H256, MAINNET, U256,
+        hex_literal::hex, keccak256, Account, Address, BlockNumber, Bytecode, Bytes,
+        ChainSpecBuilder, ForkCondition, StorageKey, H256, MAINNET, U256,
     };
     use reth_provider::{
-        post_state::{AccountChanges, Storage, StorageTransition, StorageWipe},
-        AccountReader, BlockHashReader, StateProvider, StateRootProvider,
+        post_state::AccountChanges, AccountReader, BlockHashReader, StateRootProvider,
     };
     use reth_rlp::Decodable;
     use std::{collections::HashMap, str::FromStr};
+
+    #[cfg(not(feature = "optimism"))]
+    use reth_consensus_common::calc;
+    #[cfg(not(feature = "optimism"))]
+    use reth_primitives::constants::ETH_TO_WEI;
+    #[cfg(not(feature = "optimism"))]
+    use reth_provider::{StateProvider, Storage, StorageTransition, StorageWipe};
 
     static DEFAULT_REVM_ACCOUNT: Lazy<RevmAccount> = Lazy::new(|| RevmAccount {
         info: AccountInfo::default(),
@@ -994,6 +999,7 @@ mod tests {
         }
     }
 
+    #[cfg(not(feature = "optimism"))]
     #[test]
     fn sanity_execution() {
         // Got rlp block from: src/GeneralStateTestsFiller/stChainId/chainIdGasCostFiller.json
@@ -1230,6 +1236,7 @@ mod tests {
         }
     }
 
+    #[cfg(not(feature = "optimism"))]
     #[test]
     fn test_selfdestruct() {
         // Modified version of eth test. Storage is added for selfdestructed account to see

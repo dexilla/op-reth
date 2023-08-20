@@ -36,6 +36,7 @@ pub use sender_recovery::*;
 pub use total_difficulty::*;
 pub use tx_lookup::*;
 
+#[cfg(not(feature = "optimism"))]
 #[cfg(test)]
 mod tests {
     use super::*;
