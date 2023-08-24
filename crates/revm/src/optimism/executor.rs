@@ -128,6 +128,7 @@ where
                     sender,
                     U256::from(m),
                     &mut post_state,
+                    false,
                 )?;
             }
 
@@ -162,7 +163,13 @@ where
                     // Safely take l1_cost from sender (the rest will be deducted by the
                     // internal EVM execution and included in result.gas_used())
                     // TODO(clabby): need to handle calls with `disable_balance_check` flag set?
-                    self.decrement_account_balance(block.number, sender, l1_cost, &mut post_state)?;
+                    self.decrement_account_balance(
+                        block.number,
+                        sender,
+                        l1_cost,
+                        &mut post_state,
+                        false,
+                    )?;
                 }
             }
 
@@ -218,6 +225,7 @@ where
                             super::l1_cost_recipient(),
                             l1_cost,
                             &mut post_state,
+                            true,
                         )?
                     }
                     self.increment_account_balance(
@@ -230,6 +238,7 @@ where
                                 .saturating_mul(result.gas_used()),
                         ),
                         &mut post_state,
+                        true,
                     )?;
                 }
             } else {

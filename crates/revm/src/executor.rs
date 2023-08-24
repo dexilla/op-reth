@@ -163,7 +163,13 @@ where
 
         // add drained ether to beneficiary.
         let beneficiary = DAO_HARDFORK_BENEFICIARY;
-        self.increment_account_balance(block_number, beneficiary, drained_balance, post_state)?;
+        self.increment_account_balance(
+            block_number,
+            beneficiary,
+            drained_balance,
+            post_state,
+            true,
+        )?;
 
         Ok(())
     }
@@ -175,8 +181,9 @@ where
         address: Address,
         increment: U256,
         post_state: &mut PostState,
+        do_touch: bool,
     ) -> Result<(), BlockExecutionError> {
-        increment_account_balance(self.db(), post_state, block_number, address, increment)
+        increment_account_balance(self.db(), post_state, block_number, address, increment, do_touch)
             .map_err(|_| BlockExecutionError::ProviderError)
     }
 
@@ -187,8 +194,9 @@ where
         address: Address,
         decrement: U256,
         post_state: &mut PostState,
+        do_touch: bool,
     ) -> Result<(), BlockExecutionError> {
-        decrement_account_balance(self.db(), post_state, block_number, address, decrement)
+        decrement_account_balance(self.db(), post_state, block_number, address, decrement, do_touch)
             .map_err(|_| BlockExecutionError::ProviderError)
     }
 
@@ -232,7 +240,13 @@ where
         // Add block rewards
         let balance_increments = self.post_block_balance_increments(block, total_difficulty);
         for (address, increment) in balance_increments.into_iter() {
-            self.increment_account_balance(block.number, address, increment, &mut post_state)?;
+            self.increment_account_balance(
+                block.number,
+                address,
+                increment,
+                &mut post_state,
+                true,
+            )?;
         }
 
         // Perform DAO irregular state change
@@ -361,6 +375,7 @@ pub fn increment_account_balance<DB>(
     block_number: BlockNumber,
     address: Address,
     increment: U256,
+    do_touch: bool,
 ) -> Result<(), <DB as DatabaseRef>::Error>
 where
     DB: DatabaseRef,
@@ -370,7 +385,7 @@ where
     // Increment beneficiary balance by mutating db entry in place.
     beneficiary.info.balance += increment;
     let new = to_reth_acc(&beneficiary.info);
-    update_account(beneficiary, post_state, address, old, new, block_number);
+    update_account(beneficiary, post_state, address, old, new, block_number, do_touch);
 
     Ok(())
 }
@@ -384,6 +399,7 @@ pub fn decrement_account_balance<DB>(
     block_number: BlockNumber,
     address: Address,
     decrement: U256,
+    do_touch: bool,
 ) -> Result<(), <DB as DatabaseRef>::Error>
 where
     DB: DatabaseRef,
@@ -394,7 +410,7 @@ where
     beneficiary.info.balance -= decrement;
 
     let new = to_reth_acc(&beneficiary.info);
-    update_account(beneficiary, post_state, address, old, new, block_number);
+    update_account(beneficiary, post_state, address, old, new, block_number, do_touch);
 
     Ok(())
 }
@@ -580,6 +596,7 @@ fn update_account(
     old: Account,
     new: Account,
     block_number: BlockNumber,
+    do_touch: bool,
 ) {
     match beneficiary.account_state {
         AccountState::NotExisting => {
@@ -599,7 +616,7 @@ fn update_account(
             // If account is None that means that EVM didn't touch it.
             // we are changing the state to Touched as account can have
             // storage in db.
-            if beneficiary.account_state == AccountState::None {
+            if beneficiary.account_state == AccountState::None && do_touch {
                 beneficiary.account_state = AccountState::Touched;
             }
             // if account was present, append changed changeset.

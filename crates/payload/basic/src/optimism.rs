@@ -132,6 +132,7 @@ where
                     parent_block.number + 1,
                     sequencer_tx.signer(),
                     m,
+                    false,
                 )?;
                 db.insert_account_info(sequencer_tx.signer(), sender_new.info);
             }
@@ -144,6 +145,7 @@ where
                 parent_block.number + 1,
                 sequencer_tx.signer(),
                 l1_cost,
+                false,
             )?;
             db.insert_account_info(sequencer_tx.signer(), sender_new.info);
         }
@@ -232,6 +234,7 @@ where
                         parent_block.number + 1,
                         executor::optimism::l1_cost_recipient(),
                         l1_cost,
+                        true,
                     )?
                 }
                 executor::increment_account_balance(
@@ -240,6 +243,7 @@ where
                     parent_block.number + 1,
                     executor::optimism::base_fee_recipient(),
                     U256::from(base_fee.saturating_mul(result.gas_used())),
+                    true,
                 )?;
             }
         } else {

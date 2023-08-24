@@ -974,7 +974,7 @@ where
         post_block_withdrawals_balance_increments(chain_spec, timestamp, &withdrawals);
 
     for (address, increment) in balance_increments {
-        increment_account_balance(db, post_state, block_number, address, increment)?;
+        increment_account_balance(db, post_state, block_number, address, increment, true)?;
     }
 
     let withdrawals_root = proofs::calculate_withdrawals_root(&withdrawals);
